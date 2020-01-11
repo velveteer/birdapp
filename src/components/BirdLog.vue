@@ -8,12 +8,13 @@
       </el-date-picker>
     </div>
     <div :id="bird.name" class="birdLog" v-for="bird in birds" :key="bird.id">
+      <el-divider></el-divider>
       <h3>
         <el-avatar :src="bird.picture" fit="fill"></el-avatar>
         {{ bird.name }}
       </h3>
       <el-table
-        :data="filterByDate(bird.log)"
+        :data="filterLogs(bird)"
         :default-sort = "{prop: 'time', order: 'descending'}"
         :max-height="250"
         stripe
@@ -49,16 +50,16 @@
 
 <script>
 import dayjs from 'dayjs'
-import dayOfYear from 'dayjs/plugin/dayOfYear'
-
-dayjs.extend(dayOfYear)
 
 export default {
   name: 'BirdLog',
   computed: {
     birds() {
-      return this.$store.getters.birdList.filter(b => b.log.length > 0)
+      return this.$store.getters.birdList
     },
+    log() {
+      return this.$store.state.log
+    }
   },
   data() {
     return {
@@ -70,12 +71,12 @@ export default {
       return dayjs(val).format('MMM D, YYYY h:mma')
 
     },
-    filterByDate(log) {
-      return log.filter(e => dayjs(e.time).dayOfYear() === dayjs(this.date).dayOfYear())
+    filterLogs(bird) {
+      return this.log.filter(e => {
+        return e.bird === bird.id
+               && dayjs(e.time).dayOfYear() === dayjs(this.date).dayOfYear()
+      })
     },
-    getLink(str) {
-      return `#${str}`
-    }
   },
 }
 </script>

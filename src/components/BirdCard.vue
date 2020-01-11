@@ -81,7 +81,7 @@ export default {
       return css
     },
     latestLogEntry() {
-      const entry = this.bird.log.concat().pop()
+      const entry = this.$store.state.log.filter(e => e.bird === this.bird.id).pop()
       if (entry) {
         return `Last ${entry.event} on ${dayjs(entry.time).format('MMM D, h:mma')}`
       }

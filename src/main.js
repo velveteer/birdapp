@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import createPersistedState from "vuex-persistedstate";
+import persistedState from "vuex-persistedstate";
 import VueRouter from 'vue-router'
 import App from './App.vue'
 import BirdCreate from './components/BirdCreate.vue'
@@ -8,6 +8,9 @@ import BirdList from './components/BirdList.vue'
 import BirdLog from './components/BirdLog.vue'
 import './plugins/element.js'
 import dayjs from 'dayjs'
+import dayOfYear from 'dayjs/plugin/dayOfYear'
+
+dayjs.extend(dayOfYear)
 
 Vue.config.productionTip = false
 
@@ -24,10 +27,22 @@ const router = new VueRouter({
 
 const store = new Vuex.Store({
   plugins: [
-    createPersistedState()
+    persistedState({
+      key: 'birdapp_birds',
+      paths: [
+        'birds',
+      ]
+    }),
+    persistedState({
+      key: 'birdapp_logs',
+      paths: [
+        'log',
+      ]
+    })
   ],
   state: {
     birds: {},
+    log: [],
   },
   getters: {
     birdList: state => Object.values(state.birds)
@@ -36,33 +51,34 @@ const store = new Vuex.Store({
     addBird (state, bird) {
       bird.id = Object.keys(state.birds).length + 1
       bird.isSignedOut = false
-      bird.log = []
       Vue.set(state.birds, bird.id, bird)
     },
     signInBird (state, bird) {
       const b = state.birds[bird.id]
       const now = dayjs().format();
       const entry = {
+        bird: bird.id,
         event: 'Sign In',
         time: now
       }
+      state.log.push(entry)
       if (b) {
         Vue.set(b, 'isSignedOut', false)
-        Vue.set(b, 'log', b.log.concat(entry))
       }
     },
     signOutBird (state, { bird, reason, user }) {
       const b = state.birds[bird.id]
       const now = dayjs().format();
       const entry = {
+        bird: bird.id,
         event: 'Sign Out',
         reason,
         user,
         time: now
       }
+      state.log.push(entry)
       if (b) {
         Vue.set(b, 'isSignedOut', true)
-        Vue.set(b, 'log', b.log.concat(entry))
       }
     },
   }
