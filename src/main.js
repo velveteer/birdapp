@@ -8,9 +8,6 @@ import BirdList from './components/BirdList.vue'
 import BirdLog from './components/BirdLog.vue'
 import './plugins/element.js'
 import dayjs from 'dayjs'
-import dayOfYear from 'dayjs/plugin/dayOfYear'
-
-dayjs.extend(dayOfYear)
 
 Vue.config.productionTip = false
 
