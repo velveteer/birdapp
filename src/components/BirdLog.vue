@@ -28,21 +28,23 @@
           width="180">
         </el-table-column>
         <el-table-column
-          label="Name"
-          width="180">
+          label="Name">
           {{ bird.name }}
         </el-table-column>
         <el-table-column
           prop="event"
-          label="Event">
+          label="Event"
+          width="90">
         </el-table-column>
         <el-table-column
           prop="reason"
-          label="Reason">
+          label="Reason"
+          width="180">
         </el-table-column>
         <el-table-column
           prop="user"
-          label="User">
+          label="User"
+          width="180">
         </el-table-column>
       </el-table>
     </div>
@@ -107,12 +109,18 @@ export default {
             b.name,
             '============',
             groupEntriesByEvent(birdLogs).map(e => {
-              const itxt = `Signed out ${dayjs(e.signOut.time).format('h:ma')} - ${dayjs(e.signIn.time).format('h:ma')}. Reason: ${e.signOut.reason}.`
+              let itxt
+              if (e.signOut && e.signIn) {
+                itxt = `Signed out ${dayjs(e.signOut.time).format('h:ma')} - ${dayjs(e.signIn.time).format('h:ma')}. Reason: ${e.signOut.reason}.`
+              }
+              if (e.signOut && !e.signIn) {
+                itxt = `Signed out ${dayjs(e.signOut.time).format('h:ma')}. No sign in time. Reason: ${e.signOut.reason}.`
+              }
               if (e.signOut.user) {
                 return `${itxt} Employee: ${e.signOut.user}.`
               }
               return itxt
-            }).join('\n')
+            }).filter(e => e).join('\n')
           ].join('\n')
         }
       })
@@ -129,6 +137,9 @@ export default {
 .block {
   padding-top: 20px;
   padding-bottom: 20px;
+}
+.block > .el-input {
+  margin-right: 20px;
 }
 .el-avatar {
   vertical-align: middle !important;
