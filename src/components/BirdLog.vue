@@ -79,7 +79,7 @@ export default {
       return this.log.filter(e => {
         const entryTime = dayjs(e.time)
         const selectedTime = dayjs(this.date)
-        return entryTime.diff(selectedTime, 'day') === 0
+        return entryTime.format('YYYYMMDD') === selectedTime.format('YYYYMMDD')
       })
     },
 
