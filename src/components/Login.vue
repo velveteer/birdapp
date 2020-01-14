@@ -1,17 +1,19 @@
 <template>
-  <div class="login">
-    <el-form ref="form" :model="form" :rules="rules" label-width="auto" v-loading.fullscreen.lock="loading">
-      <el-form-item label="Email" prop="user">
-        <el-input v-model="form.user"></el-input>
-      </el-form-item>
-      <el-form-item label="Password" prop="pass">
-        <el-input v-model="form.pass" type="password"></el-input>
-      </el-form-item>
-    </el-form>
-    <div class="login-button">
-      <el-button type="primary" @click="onSubmit">Login</el-button>
-    </div>
-  </div>
+  <el-row type="flex" align="middle" justify="center">
+    <el-col :xs="24" :sm="8" :md="8" :lg="8" class="login">
+      <el-form ref="form" :model="form" :rules="rules" label-position="top" label-width="auto" v-loading.fullscreen.lock="loading">
+        <el-form-item label="Email" prop="user">
+          <el-input v-model="form.user"></el-input>
+        </el-form-item>
+        <el-form-item label="Password" prop="pass">
+          <el-input v-model="form.pass" type="password"></el-input>
+        </el-form-item>
+      </el-form>
+      <div class="login-button">
+        <el-button type="primary" @click="onSubmit">Login</el-button>
+      </div>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
@@ -65,7 +67,6 @@ export default {
 <style scoped>
 .login {
   margin: 100px auto;
-  width: 50%;
 }
 .login-button {
   text-align: right;

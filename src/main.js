@@ -31,6 +31,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (!firebase.auth().currentUser && to.path !== '/login') next('/login')
+  if (firebase.auth().currentUser && to.path === '/login') next('/')
   else next()
 })
 
@@ -116,6 +117,8 @@ const store = new Vuex.Store({
     ...vuexfireMutations,
   }
 })
+
+firebase.auth().signOut()
 
 new Vue({
   router,
