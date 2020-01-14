@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <el-form ref="form" :model="form" :rules="rules" label-width="auto">
+    <el-form ref="form" :model="form" :rules="rules" label-width="auto" v-loading.fullscreen.lock="loading">
       <el-form-item label="Email" prop="user">
         <el-input v-model="form.user"></el-input>
       </el-form-item>
@@ -25,6 +25,7 @@ export default {
         user: null,
         pass: null
       },
+      loading: false,
       rules: {
         user: [
           { required: true, message: 'Please input email', trigger: 'blur' },
@@ -46,7 +47,14 @@ export default {
         if (valid) {
           const email = this.form.user
           const pass  = this.form.pass
+          this.loading = true
           firebase.auth().signInWithEmailAndPassword(email, pass)
+          .then(() => {
+            this.loading = false
+          })
+          .catch(() => {
+            this.loading = false
+          })
         }
       })
     }
@@ -55,7 +63,11 @@ export default {
 </script>
 
 <style scoped>
+.login {
+  margin: 100px auto;
+  width: 50%;
+}
 .login-button {
-  text-align: center;
+  text-align: right;
 }
 </style>
