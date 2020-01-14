@@ -10,12 +10,11 @@
         <div>
           <el-dialog
             title="Sign Out Reason"
-            @closed="signOut"
             :fullscreen="true"
             :visible.sync="dialogVisible">
             <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">Cancel</el-button>
-              <el-button type="primary" @click="dialogVisible = false">Confirm</el-button>
+              <el-button @click="cancelSignOut">Cancel</el-button>
+              <el-button type="primary" @click="signOut">Confirm</el-button>
             </span>
             <el-select v-model="signOutReason" placeholder="Select">
               <el-option
@@ -88,7 +87,6 @@ export default {
   data() {
     return {
       dialogVisible: false,
-      popOverVisible: false,
       signOutReason: '',
       signOutNote: '',
       signOutUser: '',
@@ -102,20 +100,27 @@ export default {
       this.signOutNote = null
       this.signOutUser = null
     },
+    cancelSignOut() {
+      this.resetSignOutReason()
+      this.dialogVisible = false
+    },
     signOut() {
       if (this.signOutReason === SIGNOUT_OPTIONS.OTHER && this.signOutNote) {
         this.$store.dispatch('signOutBird', { bird: this.bird, reason: this.signOutNote })
-        this.popOverVisible = false
+        this.dialogVisible = false
+        this.resetSignOutReason()
         return
       }
       if (this.signOutReason === SIGNOUT_OPTIONS.WALK && this.signOutUser) {
         this.$store.dispatch('signOutBird', { bird: this.bird, reason: this.signOutReason, user: this.signOutUser })
-        this.popOverVisible = false
+        this.dialogVisible = false
+        this.resetSignOutReason()
         return
       }
       if (this.signOutReason && this.signOutReason !== SIGNOUT_OPTIONS.OTHER && this.signOutReason !== SIGNOUT_OPTIONS.WALK) {
         this.$store.dispatch('signOutBird', { bird: this.bird, reason: this.signOutReason })
-        this.popOverVisible = false
+        this.dialogVisible = false
+        this.resetSignOutReason()
         return
       }
     },
