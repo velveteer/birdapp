@@ -118,7 +118,7 @@ const store = new Vuex.Store({
   }
 })
 
-firebase.auth().signOut()
+// firebase.auth().signOut()
 
 new Vue({
   router,
