@@ -25,11 +25,7 @@
           sortable
           :formatter="formatTime"
           label="Date"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          label="Name">
-          {{ bird.name }}
+          width="200">
         </el-table-column>
         <el-table-column
           prop="event"
@@ -38,8 +34,7 @@
         </el-table-column>
         <el-table-column
           prop="reason"
-          label="Reason"
-          width="180">
+          label="Reason">
         </el-table-column>
         <el-table-column
           prop="user"
@@ -75,7 +70,7 @@ export default {
       return this.$store.getters.birdList
     },
     log() {
-      return this.$store.state.log
+      return this.$store.getters.sortedLog
     },
     filteredLogs() {
       return this.log.filter(e => {

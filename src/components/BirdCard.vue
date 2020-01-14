@@ -8,22 +8,15 @@
         <span>{{ bird.name }}</span>
         <div class="bird-event">{{ latestLogEntry }}</div>
         <div>
-          <el-popover
-            @hide="resetSignOutReason"
-            placement="bottom"
+          <el-dialog
             title="Sign Out Reason"
-            width="250"
-            v-model="popOverVisible"
-            trigger="manual">
-            <el-button slot="reference"
-                       v-show="!bird.isSignedOut"
-                       class="button sign-button"
-                       @click="popOverVisible = !popOverVisible"
-                       style="margin-top: 10px;"
-                       type="primary">
-              Sign Out
-            </el-button>
-            <slot>
+            @closed="signOut"
+            :fullscreen="true"
+            :visible.sync="dialogVisible">
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogVisible = false">Cancel</el-button>
+              <el-button type="primary" @click="dialogVisible = false">Confirm</el-button>
+            </span>
             <el-select v-model="signOutReason" placeholder="Select">
               <el-option
                 v-for="item in signOutOptions"
@@ -47,11 +40,15 @@
               :autosize="{ minRows: 3, maxRows: 5}"
               v-model="signOutNote">
             </el-input>
-            <el-button class="button"  @click="signOut" style="margin-top: 10px;" type="primary">
-              Submit
-            </el-button>
-            </slot>
-          </el-popover>
+          </el-dialog>
+          <el-button slot="reference"
+                     v-show="!bird.isSignedOut"
+                     class="button sign-button"
+                     @click="dialogVisible = true"
+                     style="margin-top: 10px;"
+                     type="primary">
+            Sign Out
+          </el-button>
           <el-button class="button sign-button" v-if="bird.isSignedOut" style="margin-top: 10px;" @click="signIn" type="primary">
             Sign In
           </el-button>
@@ -81,7 +78,7 @@ export default {
       return css
     },
     latestLogEntry() {
-      const entry = this.$store.state.log.filter(e => e.bird === this.bird.id).pop()
+      const entry = this.$store.getters.sortedLog.filter(e => e.bird === this.bird.id).pop()
       if (entry) {
         return `Last ${entry.event} on ${dayjs(entry.time).format('MMM D, h:mma')}`
       }
@@ -90,6 +87,7 @@ export default {
   },
   data() {
     return {
+      dialogVisible: false,
       popOverVisible: false,
       signOutReason: '',
       signOutNote: '',
@@ -106,23 +104,23 @@ export default {
     },
     signOut() {
       if (this.signOutReason === SIGNOUT_OPTIONS.OTHER && this.signOutNote) {
-        this.$store.commit('signOutBird', { bird: this.bird, reason: this.signOutNote })
+        this.$store.dispatch('signOutBird', { bird: this.bird, reason: this.signOutNote })
         this.popOverVisible = false
         return
       }
       if (this.signOutReason === SIGNOUT_OPTIONS.WALK && this.signOutUser) {
-        this.$store.commit('signOutBird', { bird: this.bird, reason: this.signOutReason, user: this.signOutUser })
+        this.$store.dispatch('signOutBird', { bird: this.bird, reason: this.signOutReason, user: this.signOutUser })
         this.popOverVisible = false
         return
       }
       if (this.signOutReason && this.signOutReason !== SIGNOUT_OPTIONS.OTHER && this.signOutReason !== SIGNOUT_OPTIONS.WALK) {
-        this.$store.commit('signOutBird', { bird: this.bird, reason: this.signOutReason })
+        this.$store.dispatch('signOutBird', { bird: this.bird, reason: this.signOutReason })
         this.popOverVisible = false
         return
       }
     },
     signIn() {
-      this.$store.commit('signInBird', this.bird)
+      this.$store.dispatch('signInBird', this.bird)
     },
   },
 }

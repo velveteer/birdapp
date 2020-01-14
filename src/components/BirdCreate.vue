@@ -60,12 +60,12 @@ export default {
       this.form.picture = null
     },
     onSubmit() {
-      const bird = {
-        name: this.form.name,
-        picture: this.form.picture,
-      };
-      if (bird.name && bird.picture) {
-        this.$store.commit('addBird', bird)
+      if (this.form.name && this.form.picture) {
+        const bird = {
+          name: this.form.name,
+          picture: this.form.picture,
+        }
+        this.$store.dispatch('addBird', bird)
         this.$refs.form.resetFields()
         this.$refs.upload.clearFiles()
         this.form.name = null
