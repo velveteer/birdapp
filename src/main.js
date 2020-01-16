@@ -5,8 +5,10 @@ import VueRouter from 'vue-router'
 
 import App from './App.vue'
 import BirdCreate from './components/BirdCreate.vue'
+import BirdEdit from './components/BirdEdit.vue'
 import BirdList from './components/BirdList.vue'
 import BirdLog from './components/BirdLog.vue'
+import BirdManage from './components/BirdManage.vue'
 import Login from './components/Login.vue'
 
 import dayjs from 'dayjs'
@@ -24,14 +26,15 @@ const router = new VueRouter({
   routes: [
     { path: '/', component: BirdList },
     { path: '/add', component: BirdCreate },
+    { path: '/edit', component: BirdEdit },
+    { path: '/manage', component: BirdManage },
     { path: '/log', component: BirdLog },
     { path: '/login', component: Login },
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  if (!firebase.auth().currentUser && to.path !== '/login') next('/login')
-  if (firebase.auth().currentUser && to.path === '/login') next('/')
+  if (!firebase.auth().currentUser && to.path !== '/login') next(`/login?next=${to.fullPath}`)
   else next()
 })
 
@@ -46,6 +49,8 @@ const firebaseConfig = {
 }
 const app = firebase.initializeApp(firebaseConfig)
 const db = app.firestore()
+const FS_BIRDS = 'birds'
+const FS_LOG = 'log'
 
 const store = new Vuex.Store({
   state: {
@@ -58,22 +63,30 @@ const store = new Vuex.Store({
     initAuth: ({ commit, dispatch }) => {
       firebase.auth().onAuthStateChanged(user => {
         if (user) {
-          dispatch('initBinds')
           commit('signInUser', user)
-          router.push('/').catch(() => {})
-        } else {
-          router.push('/login').catch(() => {})
+          dispatch('initBinds')
         }
         commit('appLoaded')
       })
     },
     initBinds: firestoreAction(async ({ bindFirestoreRef }) => {
-      await bindFirestoreRef('birds', db.collection('birds'))
-      await bindFirestoreRef('log', db.collection('log'))
+      await bindFirestoreRef('birds', db.collection(FS_BIRDS).where('isDeleted', '==', false))
+      await bindFirestoreRef('log', db.collection(FS_LOG))
     }),
     addBird: firestoreAction((context, bird) => {
-      const newBird = { ...bird, isSignedOut: false }
-      return db.collection('birds').add(newBird)
+      const newBird = { ...bird, isSignedOut: false, isDeleted: false }
+      return db.collection(FS_BIRDS).add(newBird)
+    }),
+    nextPath: ({ commit }, path) => {
+      commit('setNextPath', path)
+    },
+    deleteBird: firestoreAction(async (context, bird) => {
+      await db.collection(FS_BIRDS).doc(bird.id).update({ isDeleted: true })
+    }),
+    updateBird: firestoreAction(async (context, bird) => {
+      const update = { name: bird.name }
+      if (bird.picture) update.picture = bird.picture
+      await db.collection(FS_BIRDS).doc(bird.id).update(update)
     }),
     signOutBird: firestoreAction(async (context, { bird, reason, user }) => {
       const now = dayjs().format();
@@ -86,8 +99,8 @@ const store = new Vuex.Store({
       if (user) {
         entry.user = user
       }
-      await db.collection('log').add(entry)
-      await db.collection('birds').doc(bird.id).update({ isSignedOut: true })
+      db.collection(FS_LOG).add(entry)
+      return db.collection(FS_BIRDS).doc(bird.id).update({ isSignedOut: true })
     }),
     signInBird: firestoreAction(async (context, bird) => {
       const now = dayjs().format();
@@ -97,12 +110,11 @@ const store = new Vuex.Store({
         time: now,
         reason: null,
       }
-      await db.collection('log').add(entry)
-      await db.collection('birds').doc(bird.id).update({ isSignedOut: false })
+      db.collection(FS_LOG).add(entry)
+      return db.collection(FS_BIRDS).doc(bird.id).update({ isSignedOut: false })
     }),
   },
   getters: {
-    birdList: state => Object.values(state.birds),
     sortedLog: state => state.log.concat().sort((a, b) => {
       return dayjs(a.time).unix() - dayjs(b.time).unix()
     }),

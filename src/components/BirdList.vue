@@ -16,7 +16,7 @@ export default {
   },
   computed: {
     birds() {
-      return this.$store.getters.birdList
+      return this.$store.state.birds
     },
   }
 }

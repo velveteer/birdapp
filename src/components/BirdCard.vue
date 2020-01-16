@@ -5,7 +5,7 @@
         <el-avatar fit="fill" :size="100" :src="bird.picture"></el-avatar>
       </div>
       <div style="padding-top: 20px;">
-        <span>{{ bird.name }}</span>
+        <h3>{{ bird.name }}</h3>
         <div class="bird-event">{{ latestLogEntry }}</div>
         <div>
           <el-dialog
@@ -41,15 +41,12 @@
             </el-input>
           </el-dialog>
           <el-button slot="reference"
-                     v-show="!bird.isSignedOut"
                      class="button sign-button"
-                     @click="dialogVisible = true"
+                     @click="toggleSignOut"
                      style="margin-top: 10px;"
                      type="primary">
-            Sign Out
-          </el-button>
-          <el-button class="button sign-button" v-if="bird.isSignedOut" style="margin-top: 10px;" @click="signIn" type="primary">
-            Sign In
+            <div v-show="!bird.isSignedOut">Sign Out</div>
+            <div v-show="bird.isSignedOut">Sign In</div>
           </el-button>
         </div>
       </div>
@@ -127,6 +124,13 @@ export default {
     signIn() {
       this.$store.dispatch('signInBird', this.bird)
     },
+    toggleSignOut() {
+      if (this.bird.isSignedOut) {
+        return this.signIn()
+      }
+      this.dialogVisible = true
+      return
+    },
   },
 }
 </script>
@@ -142,11 +146,11 @@ export default {
   display: block !important;
 }
 .sign-button {
-  width: 100px;
+  min-width: 100px !important;
 }
 .bird-card {
   transition: all 0.5s;
-  height: 280px !important;
+  height: 300px !important;
 }
 .bird-card--dimmed {
   background-color: #eee !important;
@@ -157,11 +161,8 @@ export default {
   opacity: 0.7;
 }
 .bird-event {
-  font-size: 12px;
-  height: 20px;
-  line-height: 20px;
-  padding: 8px;
-  margin-bottom: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
 }
 .signout-form {
   height: 100px !important;

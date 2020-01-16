@@ -18,7 +18,7 @@
     </el-form-item>
     <el-form-item>
        <transition name="el-fade-in">
-        <el-button v-if="canSubmit" type="success" @click="onSubmit">Submit</el-button>
+        <el-button v-if="canSubmit" type="success" @click="onSubmit">Update</el-button>
       </transition>
     </el-form-item>
   </el-form>
@@ -26,10 +26,14 @@
 
 <script>
 export default {
-  name: 'BirdCreate',
+  name: 'BirdEdit',
+  created() {
+    if (this.bird) this.form.name = this.bird.name
+  },
   data() {
     return {
       limit: 1,
+      loadingImage: false,
       form: {
         name: null,
         picture: null
@@ -38,18 +42,27 @@ export default {
   },
   computed: {
     canSubmit() {
-      return this.form.name && this.form.picture
+      return this.form.name
     },
+    birdId() {
+      return this.$route.query.birdId
+    },
+    bird() {
+      return this.$store.state.birds.filter(b => b.id === this.birdId).pop()
+    }
   },
   methods: {
     handleChange(file) {
       const reader = new FileReader()
+      this.loadingImage = true
       reader.readAsDataURL(file.raw)
       reader.onload = () => {
         this.form.picture = reader.result
+        this.loadingImage = false
       }
       reader.onerror = error => {
         window.console.log(error)
+        this.loadingImage = false
         return
       }
     },
@@ -57,19 +70,17 @@ export default {
       this.form.picture = null
     },
     onSubmit() {
-      if (this.form.name && this.form.picture) {
+      if (this.form.name && !this.loadingImage) {
         const bird = {
+          id: this.birdId,
           name: this.form.name,
           picture: this.form.picture,
         }
-        this.$store.dispatch('addBird', bird)
-        this.$refs.form.resetFields()
-        this.$refs.upload.clearFiles()
-        this.form.name = null
-        this.form.picture = null
+        this.$store.dispatch('updateBird', bird)
+        this.$router.push('/manage')
       }
       return
     }
-  }
+  },
 }
 </script>

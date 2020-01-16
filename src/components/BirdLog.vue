@@ -63,11 +63,8 @@ const groupEntriesByEvent = logs => {
 export default {
   name: 'BirdLog',
   computed: {
-    birdMap() {
-      return this.$store.state.birds
-    },
     birds() {
-      return this.$store.getters.birdList
+      return this.$store.state.birds
     },
     log() {
       return this.$store.getters.sortedLog

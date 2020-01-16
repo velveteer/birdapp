@@ -21,6 +21,11 @@ import firebase from 'firebase/app'
 
 export default {
   name: 'Login',
+  created() {
+    if (this.user && this.$route.query.next) {
+      this.$router.replace(this.$route.query.next)
+    }
+  },
   data() {
     return {
       form: {
@@ -42,6 +47,9 @@ export default {
     canSubmit() {
       return this.form.user && this.form.pass
     },
+    user() {
+      return this.$store.state.user
+    },
   },
   methods: {
     onSubmit() {
@@ -53,6 +61,7 @@ export default {
           firebase.auth().signInWithEmailAndPassword(email, pass)
           .then(() => {
             this.loading = false
+            this.$router.replace(this.$route.query.next || '/')
           })
           .catch(() => {
             this.loading = false
