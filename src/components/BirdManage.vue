@@ -2,11 +2,9 @@
   <div>
     <div class="bird-row">
         <div style="text-align:right;">
-        <router-link to="/add" v-slot="{ href }">
+        <router-link to="/add">
           <el-button plain type="success" icon="el-icon-plus">
-          <el-link :href="href" type="success">
             Add Bird
-          </el-link>
           </el-button>
         </router-link>
         </div>

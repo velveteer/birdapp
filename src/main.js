@@ -77,9 +77,6 @@ const store = new Vuex.Store({
       const newBird = { ...bird, isSignedOut: false, isDeleted: false }
       return db.collection(FS_BIRDS).add(newBird)
     }),
-    nextPath: ({ commit }, path) => {
-      commit('setNextPath', path)
-    },
     deleteBird: firestoreAction(async (context, bird) => {
       await db.collection(FS_BIRDS).doc(bird.id).update({ isDeleted: true })
     }),
