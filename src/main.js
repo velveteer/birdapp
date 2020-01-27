@@ -49,8 +49,8 @@ const firebaseConfig = {
 }
 const app = firebase.initializeApp(firebaseConfig)
 const db = app.firestore()
-const FS_BIRDS = 'birds-test'
-const FS_LOG = 'log-test'
+const FS_BIRDS = 'birds'
+const FS_LOG = 'log'
 
 const store = new Vuex.Store({
   state: {
