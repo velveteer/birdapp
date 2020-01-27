@@ -41,6 +41,10 @@
           label="User"
           width="180">
         </el-table-column>
+        <el-table-column v-slot="slotProps"
+          label="Actions">
+          <el-button size="small" :type="getType(slotProps.row)" icon="el-icon-delete" @click="deleteLog(slotProps.row)"></el-button>
+        </el-table-column>
       </el-table>
     </div>
   </div>
@@ -70,10 +74,22 @@ export default {
   },
   data() {
     return {
-      date: dayjs().format('YYYY-M-DD')
+      date: dayjs().format('YYYY-M-DD'),
+      primed: {},
     }
   },
   methods: {
+    deleteLog(row) {
+      if (this.primed[row.id]) {
+        this.$store.dispatch('deleteLogEntry', row.id)
+        this.$delete(this.primed, row.id)
+      } else {
+        this.$set(this.primed, row.id, true)
+        setTimeout(() => {
+          this.$set(this.primed, row.id, false)
+        }, 5000)
+      }
+    },
     formatTime(row, col, val) {
       return dayjs(val).format('MMM D, YYYY h:mma')
 
@@ -82,6 +98,12 @@ export default {
       return this.filteredLogs.filter(e => {
         return e.bird === bird.id
       })
+    },
+    getType(row) {
+      if (this.primed[row.id]) {
+        return 'danger'
+      }
+      return
     },
     saveLogs() {
       const txt = this.birds.map(b => {

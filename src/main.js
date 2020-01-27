@@ -71,7 +71,7 @@ const store = new Vuex.Store({
     },
     initBinds: firestoreAction(async ({ bindFirestoreRef }) => {
       await bindFirestoreRef('birds', db.collection(FS_BIRDS).where('isDeleted', '==', false))
-      await bindFirestoreRef('log', db.collection(FS_LOG))
+      await bindFirestoreRef('log', db.collection(FS_LOG).where('isDeleted', '==', false))
     }),
     addBird: firestoreAction((context, bird) => {
       const newBird = { ...bird, isSignedOut: false, isDeleted: false }
@@ -90,7 +90,8 @@ const store = new Vuex.Store({
       const entry = {
         bird: bird.id,
         event,
-        time: now
+        time: now,
+        isDeleted: false,
       }
       return db.collection(FS_LOG).add(entry)
     }),
@@ -100,7 +101,8 @@ const store = new Vuex.Store({
         bird: bird.id,
         event: 'Sign Out',
         reason,
-        time: now
+        time: now,
+        isDeleted: false,
       }
       if (user) {
         entry.user = user
@@ -115,10 +117,14 @@ const store = new Vuex.Store({
         event: 'Sign In',
         time: now,
         reason: null,
+        isDeleted: false,
       }
       db.collection(FS_LOG).add(entry)
       return db.collection(FS_BIRDS).doc(bird.id).update({ isSignedOut: false })
     }),
+    deleteLogEntry: firestoreAction(async (context, logId) => {
+      await db.collection(FS_LOG).doc(logId).update({ isDeleted: true })
+    })
   },
   getters: {
     sortedLog: state => state.log.concat().sort((a, b) => {

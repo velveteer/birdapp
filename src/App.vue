@@ -9,7 +9,7 @@
           mode="horizontal">
           <el-menu-item index="/">Activity</el-menu-item>
           <el-menu-item index="/manage">Manage Birds</el-menu-item>
-          <el-menu-item index="/log">Activity Log</el-menu-item>
+          <el-menu-item index="/log">Activity Logs</el-menu-item>
         </el-menu>
       </el-header>
       <el-main>
