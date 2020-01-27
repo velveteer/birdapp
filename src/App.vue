@@ -7,7 +7,7 @@
           :router="true"
           :default-active="$route.path"
           mode="horizontal">
-          <el-menu-item index="/">Sign In/Out</el-menu-item>
+          <el-menu-item index="/">Activity</el-menu-item>
           <el-menu-item index="/manage">Manage Birds</el-menu-item>
           <el-menu-item index="/log">Activity Log</el-menu-item>
         </el-menu>

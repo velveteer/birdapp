@@ -49,8 +49,8 @@ const firebaseConfig = {
 }
 const app = firebase.initializeApp(firebaseConfig)
 const db = app.firestore()
-const FS_BIRDS = 'birds'
-const FS_LOG = 'log'
+const FS_BIRDS = 'birds-test'
+const FS_LOG = 'log-test'
 
 const store = new Vuex.Store({
   state: {
@@ -84,6 +84,15 @@ const store = new Vuex.Store({
       const update = { name: bird.name }
       if (bird.picture) update.picture = bird.picture
       await db.collection(FS_BIRDS).doc(bird.id).update(update)
+    }),
+    logBirdActivity: firestoreAction(async (context, { bird, event }) => {
+      const now = dayjs().format();
+      const entry = {
+        bird: bird.id,
+        event,
+        time: now
+      }
+      return db.collection(FS_LOG).add(entry)
     }),
     signOutBird: firestoreAction(async (context, { bird, reason, user }) => {
       const now = dayjs().format();

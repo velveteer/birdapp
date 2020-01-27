@@ -7,6 +7,7 @@
         placeholder="Pick a date">
       </el-date-picker>
       <el-button type="primary" icon="el-icon-download" @click="saveLogs">Export</el-button>
+      <!-- <el-button>Add Manual Log Entry</el-button> -->
     </div>
     <el-divider></el-divider>
     <div :id="bird.name" class="birdLog" v-for="bird in birds" :key="bird.id">
@@ -29,8 +30,7 @@
         </el-table-column>
         <el-table-column
           prop="event"
-          label="Event"
-          width="90">
+          label="Event">
         </el-table-column>
         <el-table-column
           prop="reason"
@@ -49,16 +49,6 @@
 <script>
 import dayjs from 'dayjs'
 import { saveAs } from 'file-saver'
-
-const groupEntriesByEvent = logs => {
-  const pairs = []
-  logs.forEach((entry, idx) => {
-    if (entry.event === 'Sign Out') {
-      pairs.push({ signOut: entry, signIn: logs[idx+1]})
-    }
-  })
-  return pairs
-}
 
 export default {
   name: 'BirdLog',
@@ -99,17 +89,14 @@ export default {
         if (birdLogs.length) {
           return [
             b.name,
-            '============',
-            groupEntriesByEvent(birdLogs).map(e => {
-              let itxt
-              if (e.signOut && e.signIn) {
-                itxt = `Signed out ${dayjs(e.signOut.time).format('h:ma')} - ${dayjs(e.signIn.time).format('h:ma')}. Reason: ${e.signOut.reason}.`
+            '=====================',
+            birdLogs.map(e => {
+              let itxt = `${dayjs(e.time).format('h:mma')} -- ${e.event}.`
+              if (e.reason) {
+                itxt = `${itxt} ${e.reason}.`
               }
-              if (e.signOut && !e.signIn) {
-                itxt = `Signed out ${dayjs(e.signOut.time).format('h:ma')}. No sign in time. Reason: ${e.signOut.reason}.`
-              }
-              if (e.signOut.user) {
-                return `${itxt} Employee: ${e.signOut.user}.`
+              if (e.user) {
+                itxt = `${itxt} Employee: ${e.user}.`
               }
               return itxt
             }).filter(e => e).join('\n')
