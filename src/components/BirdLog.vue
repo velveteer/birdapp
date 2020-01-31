@@ -26,7 +26,7 @@
           sortable
           :formatter="formatTime"
           label="Date"
-          width="200">
+          width="180">
         </el-table-column>
         <el-table-column
           prop="event"
@@ -38,8 +38,7 @@
         </el-table-column>
         <el-table-column
           prop="user"
-          label="User"
-          width="180">
+          label="User">
         </el-table-column>
         <el-table-column v-slot="slotProps"
           label="Actions">
@@ -134,7 +133,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .block {
   padding-top: 20px;
   padding-bottom: 20px;
@@ -147,5 +146,8 @@ export default {
 }
 .birdLog {
   margin-bottom: 40px !important;
+}
+.el-table .cell {
+  word-break: keep-all !important;
 }
 </style>

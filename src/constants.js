@@ -9,6 +9,7 @@ export const ACTIVITY_OPTIONS = {
   FLIGHT: 'Flight Training',
   PERCH: 'Perched',
   CAGE: 'Out of Cage',
-  WEIGHT: 'Weighing',
+  RETURNED: 'Returned to Cage',
+  WEIGHT: 'Weighed',
   UPSTAIRS: 'Upstairs',
 }

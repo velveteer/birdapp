@@ -13,7 +13,7 @@
             :visible.sync="dialogVisible">
             <span slot="footer" class="dialog-footer">
               <el-button @click="cancelSignOut">Cancel</el-button>
-              <el-button type="primary" @click="signOut">Confirm</el-button>
+              <el-button :disabled="!canSignOut()" type="primary" @click="signOut">Confirm</el-button>
             </span>
             <div>
               <el-radio v-model="signOutReason"
@@ -34,11 +34,15 @@
             :title="`Log Activity for ${bird.name}`"
             :fullscreen="true"
             :visible.sync="logDialogVisible">
-            <div v-for="item in logActivityOptions" :key="item.value" class="activity-button">
-              <el-button round plain @click="doLogActivity(item.value)" type="primary">
-                {{ item.label }}
-              </el-button>
-            </div>
+            <el-checkbox-group v-model="activityReasons">
+              <el-checkbox
+                border
+                style="margin-top:20px;"
+                v-for="item in logActivityOptions"
+                :key="item.value"
+                :label="item.label">
+              </el-checkbox>
+            </el-checkbox-group>
             <el-input
               placeholder="Other reason"
               type="textarea"
@@ -46,8 +50,11 @@
               :autosize="{ minRows: 3, maxRows: 5}"
               v-model="otherNote">
             </el-input>
-            <el-button round plain @click="doLogActivity()" type="primary" style="margin-top:20px;">
-              Submit Other Reason
+            <el-button @click="cancelLogActivity" style="margin-top:20px;">
+              Cancel
+            </el-button>
+            <el-button :disabled="!canLogActivity()" @click="doLogActivity()" type="primary" style="margin-top:20px;">
+              Confirm
             </el-button>
           </el-dialog>
           <el-button slot="reference"
@@ -91,44 +98,60 @@ export default {
   },
   data() {
     return {
+      activityReasons: [],
       dialogVisible: false,
       logActivity: null,
       logDialogVisible: false,
       otherNote: '',
       signOutReason: null,
-      signOutUser: '',
+      signOutUser: null,
       logActivityOptions: Object.values(ACTIVITY_OPTIONS).map(x => ({ label: x, value: x })),
       signOutOptions: Object.values(SIGNOUT_OPTIONS).map(x => ({ label: x, value: x }))
     }
   },
   methods: {
     resetSignOutReason() {
-      this.signOutReasons = []
+      this.signOutReason = null
       this.signOutUser = null
     },
     resetLogActivity() {
+      this.activityReasons = []
       this.otherNote = null
+    },
+    cancelLogActivity() {
+      this.logDialogVisible = false
+      this.resetLogActivity()
     },
     cancelSignOut() {
       this.resetSignOutReason()
       this.dialogVisible = false
     },
-    doLogActivity(activity) {
+    doLogActivity() {
       const note = this.otherNote && this.otherNote.trim()
-      const event = activity || note
+      let reasons = this.activityReasons
+      if (note) {
+        reasons = reasons.concat(note)
+      }
+      reasons = reasons.join('. ')
 
       if (event) {
         this.$store.dispatch('logBirdActivity', {
           bird: this.bird,
-          event
+          event: reasons,
         })
       }
 
       this.logDialogVisible = false
       this.resetLogActivity()
     },
+    canLogActivity() {
+      return this.activityReasons.length || this.otherNote
+    },
+    canSignOut() {
+      return this.signOutUser && this.signOutUser.trim()
+    },
     signOut() {
-      if (this.requiresSignOutUser && this.signOutUser && !this.signOutUser.trim()) {
+      if (!this.canSignOut()) {
         return
       }
 
@@ -142,10 +165,6 @@ export default {
 
       this.dialogVisible = false
       this.resetSignOutReason()
-    },
-    requiresSignOutUser() {
-      return this.signOutReasons.includes(SIGNOUT_OPTIONS.WALK)
-          || this.signOutReasons.includes(SIGNOUT_OPTIONS.OUTREACH)
     },
     signIn() {
       this.$store.dispatch('signInBird', this.bird)
@@ -171,6 +190,9 @@ export default {
 }
 .el-avatar>img {
   width: 100%;
+}
+.el-dialog__footer {
+  text-align: center !important;
 }
 .activity-button {
   display: inline-block !important;
