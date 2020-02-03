@@ -41,8 +41,6 @@ export default {
   name: 'BirdManage',
   data() {
     return {
-      deleteVisible: false,
-      selectedBird: {},
       primed: {},
       timeouts: {},
     }
