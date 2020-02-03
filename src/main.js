@@ -124,7 +124,10 @@ const store = new Vuex.Store({
     }),
     deleteLogEntry: firestoreAction(async (context, logId) => {
       await db.collection(FS_LOG).doc(logId).update({ isDeleted: true })
-    })
+    }),
+    updateLogEntry: firestoreAction(async (context, { id, update }) => {
+      await db.collection(FS_LOG).doc(id).update(update)
+    }),
   },
   getters: {
     sortedLog: state => state.log.concat().sort((a, b) => {

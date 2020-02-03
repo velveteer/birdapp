@@ -22,11 +22,26 @@
         stripe
         style="width: 100%">
         <el-table-column
-          prop="time"
           sortable
-          :formatter="formatTime"
+          prop="time"
           label="Date"
-          width="180">
+          v-slot="sp">
+          <div v-if="editMode[sp.row.id]">
+            <el-time-picker
+              v-model="editData[sp.row.id].time"
+              :clearable="false"
+              size="small"
+              :default-value="editData[sp.row.id].time"
+              :picker-options="{
+                format: 'h:mma'
+              }"
+              @change="updateLog(sp.row)"
+              placeholder="Edit time">
+            </el-time-picker>
+          </div>
+          <div v-else>
+            {{ formatTime(sp.row.time) }}
+          </div>
         </el-table-column>
         <el-table-column
           prop="event"
@@ -40,9 +55,18 @@
           prop="user"
           label="User">
         </el-table-column>
-        <el-table-column v-slot="slotProps"
+        <el-table-column v-slot="sp"
           label="Actions">
-          <el-button size="small" :type="getType(slotProps.row)" icon="el-icon-delete" @click="deleteLog(slotProps.row)"></el-button>
+          <el-button size="small"
+                     :type="getEditButtonType(sp.row)"
+                     icon="el-icon-edit"
+                     @click="editLog(sp.row)">
+          </el-button>
+          <el-button size="small"
+                     :type="getDeleteButtonType(sp.row)"
+                     icon="el-icon-delete"
+                     @click="deleteLog(sp.row)">
+          </el-button>
         </el-table-column>
       </el-table>
     </div>
@@ -75,6 +99,8 @@ export default {
     return {
       date: dayjs().format('YYYY-M-DD'),
       primed: {},
+      editMode: {},
+      editData: {},
     }
   },
   methods: {
@@ -89,8 +115,26 @@ export default {
         }, 5000)
       }
     },
-    formatTime(row, col, val) {
-      return dayjs(val).format('MMM D, YYYY h:mma')
+    editLog(row) {
+      if (this.editMode[row.id]) {
+        this.$delete(this.editMode, row.id)
+        this.$delete(this.editData, row.id)
+      } else {
+        this.$set(this.editData, row.id, {})
+        this.$set(this.editData[row.id], 'time', row.time)
+        this.$set(this.editMode, row.id, true)
+      }
+    },
+    updateLog(row) {
+      const update = {
+        time: dayjs(this.editData[row.id].time).format()
+      }
+      this.$store.dispatch('updateLogEntry', { id: row.id, update })
+      this.$delete(this.editMode, row.id)
+      this.$delete(this.editData, row.id)
+    },
+    formatTime(time) {
+      return dayjs(time).format('h:mma')
 
     },
     filterLogsByBird(bird) {
@@ -98,9 +142,15 @@ export default {
         return e.bird === bird.id
       })
     },
-    getType(row) {
+    getDeleteButtonType(row) {
       if (this.primed[row.id]) {
         return 'danger'
+      }
+      return
+    },
+    getEditButtonType(row) {
+      if (this.editMode[row.id]) {
+        return 'primary'
       }
       return
     },
@@ -149,5 +199,8 @@ export default {
 }
 .el-table .cell {
   word-break: keep-all !important;
+}
+.el-date-editor.el-input, .el-date-editor.el-input__inner {
+  width: auto !important;
 }
 </style>

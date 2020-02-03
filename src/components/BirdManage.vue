@@ -26,18 +26,16 @@
             </div>
             <div class="bird-row__controls">
               <router-link :to="{ path: '/edit', query: { birdId: bird.id }}" style="margin-right:12px;">
-                <el-button type="primary"
-                           class="button"
-                           icon="el-icon-edit-outline"
+                <el-button class="button"
+                           icon="el-icon-edit"
                            plain>
-                Edit
                 </el-button>
               </router-link>
               <el-button type="danger"
                          class="button"
                          plain
+                           icon="el-icon-delete"
                          @click="toggleDelete(bird)">
-                Delete
               </el-button>
             </div>
           </el-card>
