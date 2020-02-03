@@ -4,12 +4,14 @@ export const SIGNOUT_OPTIONS = {
 }
 
 export const ACTIVITY_OPTIONS = {
-  GUEST: 'Guest Interactions/Behaviors',
-  BIRDSHOW: 'Bird Show/Hand-Offs',
+  GUEST: 'Guest interactions/behaviors',
+  BIRDSHOW: 'Bird show/hand-offs',
   FLIGHT: 'Flight Training',
+  NEST: 'In the nest',
+  CAGE: 'Out of cage',
+  OUTSIDE: 'Outside',
   PERCH: 'Perched',
-  CAGE: 'Out of Cage',
-  RETURNED: 'Returned to Cage',
-  WEIGHT: 'Weighed',
+  RETURNED: 'Returned to cage',
   UPSTAIRS: 'Upstairs',
+  WEIGHT: 'Weighed',
 }
