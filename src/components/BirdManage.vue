@@ -9,14 +9,6 @@
         </router-link>
         </div>
     </div>
-    <el-dialog
-      :title="`Delete ${selectedBird.name}?`"
-      :visible.sync="deleteVisible">
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="cancelDelete">Cancel</el-button>
-        <el-button type="primary" @click="deleteSelectedBird">Confirm</el-button>
-      </span>
-    </el-dialog>
     <div v-for="bird in birds" :key="bird.id">
         <div class="bird-row">
           <el-card style="width:100%;">
@@ -31,11 +23,11 @@
                            plain>
                 </el-button>
               </router-link>
-              <el-button type="danger"
+              <el-button :type="getDeleteButtonType(bird)"
                          class="button"
                          plain
-                           icon="el-icon-delete"
-                         @click="toggleDelete(bird)">
+                         icon="el-icon-delete"
+                         @click="deleteBird(bird)">
               </el-button>
             </div>
           </el-card>
@@ -51,6 +43,8 @@ export default {
     return {
       deleteVisible: false,
       selectedBird: {},
+      primed: {},
+      timeouts: {},
     }
   },
   computed: {
@@ -59,16 +53,27 @@ export default {
     }
   },
   methods: {
-    cancelDelete() {
-      this.deleteVisible = false
+    deleteBird(bird) {
+      if (this.primed[bird.id] === 2) {
+        this.$store.dispatch('deleteBird', bird)
+        this.$delete(this.primed, bird.id)
+      } else {
+        this.$set(this.primed, bird.id, (this.primed[bird.id] || 0) + 1)
+        clearTimeout(this.timeouts[bird.id])
+        this.timeouts[bird.id] = setTimeout(() => {
+          this.$delete(this.primed, bird.id)
+          this.$delete(this.timeouts, bird.id)
+        }, 4000)
+      }
     },
-    deleteSelectedBird() {
-      this.$store.dispatch('deleteBird', this.selectedBird)
-      this.deleteVisible = false
-    },
-    toggleDelete(bird) {
-      this.selectedBird = bird
-      this.deleteVisible = true
+    getDeleteButtonType(bird) {
+      if (this.primed[bird.id] === 2) {
+        return 'danger'
+      }
+      if (this.primed[bird.id] === 1) {
+        return 'warning'
+      }
+      return
     },
   }
 }

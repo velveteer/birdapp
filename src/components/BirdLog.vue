@@ -99,20 +99,23 @@ export default {
     return {
       date: dayjs().format('YYYY-M-DD'),
       primed: {},
+      timeouts: {},
       editMode: {},
       editData: {},
     }
   },
   methods: {
     deleteLog(row) {
-      if (this.primed[row.id]) {
-        this.$store.dispatch('deleteLogEntry', row.id)
+      if (this.primed[row.id] === 2) {
+        this.$store.dispatch('deleteLogEntry', row)
         this.$delete(this.primed, row.id)
       } else {
-        this.$set(this.primed, row.id, true)
-        setTimeout(() => {
-          this.$set(this.primed, row.id, false)
-        }, 5000)
+        this.$set(this.primed, row.id, (this.primed[row.id] || 0) + 1)
+        clearTimeout(this.timeouts[row.id])
+        this.timeouts[row.id] = setTimeout(() => {
+          this.$delete(this.primed, row.id)
+          this.$delete(this.timeouts, row.id)
+        }, 4000)
       }
     },
     editLog(row) {
@@ -143,8 +146,11 @@ export default {
       })
     },
     getDeleteButtonType(row) {
-      if (this.primed[row.id]) {
+      if (this.primed[row.id] === 2) {
         return 'danger'
+      }
+      if (this.primed[row.id] === 1) {
+        return 'warning'
       }
       return
     },

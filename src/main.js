@@ -122,8 +122,8 @@ const store = new Vuex.Store({
       db.collection(FS_LOG).add(entry)
       return db.collection(FS_BIRDS).doc(bird.id).update({ isSignedOut: false })
     }),
-    deleteLogEntry: firestoreAction(async (context, logId) => {
-      await db.collection(FS_LOG).doc(logId).update({ isDeleted: true })
+    deleteLogEntry: firestoreAction(async (context, log) => {
+      await db.collection(FS_LOG).doc(log.id).update({ isDeleted: true })
     }),
     updateLogEntry: firestoreAction(async (context, { id, update }) => {
       await db.collection(FS_LOG).doc(id).update(update)
